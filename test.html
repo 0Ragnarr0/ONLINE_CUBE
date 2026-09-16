@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket 接続テスト</title>
+</head>
+<body>
+  <h2>WebSocket 接続テスト</h2>
+  <button onclick="connect()">接続する</button>
+  <button onclick="sendMove()">座標を送信してみる</button>
+  <pre id="log" style="background:#111;color:#0f0;padding:12px;min-height:120px;"></pre>
+
+  <script>
+    let ws;
+
+    // ログを画面に表示する関数
+    function log(msg) {
+      document.getElementById("log").textContent += msg + "\n";
+    }
+
+    // サーバーに接続する
+    function connect() {
+      ws = new WebSocket("ws://localhost:8765");
+
+      ws.onopen = () => {
+        log("✅ 接続成功！");
+      };
+
+      ws.onmessage = (e) => {
+        // サーバーから受け取ったメッセージを表示する
+        log("📨 受信: " + e.data);
+      };
+
+      ws.onclose = () => {
+        log("❌ 切断されました");
+      };
+
+      ws.onerror = (e) => {
+        log("⚠️ エラー: " + e);
+      };
+    }
+
+    // テスト用の座標を送信する
+    function sendMove() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        log("先に接続してください");
+        return;
+      }
+      const msg = JSON.stringify({ type: "move", x: 1.5, z: -2.0 });
+      ws.send(msg);
+      log("📤 送信: " + msg);
+    }
+  </script>
+</body>
+</html>
